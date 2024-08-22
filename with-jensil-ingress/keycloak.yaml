@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+spec:
+  containers:
+    - name: keycloak
+      image: europe-west1-docker.pkg.dev/camunda-researchanddevelopment/jens-lindner/rhkc:24
+      args: ["start-dev"]
+      ports:
+        - containerPort: 8090
+      env:
+        - name: KC_HTTP_RELATIVE_PATH
+          value: "/auth/"
+        - name: KC_HTTP_PORT
+          value: "8090"
+        - name: KEYCLOAK_ADMIN
+          value: "admin"
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: "admin"
+
+# Env Vars for bitnami
+#        - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
+#          value: "true"
+#        - name: KEYCLOAK_FRONTEND_URL
+#          value: https://test.jensil.de/auth/
+        # Env Vars for RedHat
+        - name: KC_PROXY
+          value: "edge"
+        - name: KC_HOSTNAME_URL
+          value: https://test.jensil.de/auth/
+      securityContext:
+        runAsUser: 1000
+  restartPolicy: Never

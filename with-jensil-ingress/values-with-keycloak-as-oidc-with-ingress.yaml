@@ -1,0 +1,117 @@
+global:
+  ingress:
+    enabled: true
+    className: nginx
+    host: "test.jensil.de"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+  identity:
+    auth:
+      issuer: https://test.jensil.de/auth/realms/redhatkeycloak-as-oidc
+      issuerBackendUrl: https://test.jensil.de/auth/realms/redhatkeycloak-as-oidc
+      tokenUrl: https://test.jensil.de/auth/realms/redhatkeycloak-as-oidc/protocol/openid-connect/token
+      jwksUrl: https://test.jensil.de/auth/realms/redhatkeycloak-as-oidc/protocol/openid-connect/certs
+      type: "GENERIC"
+      identity:
+        clientId: identity-api
+        audience: identity-api
+        existingSecret: oZ3MeaK5WAEdAflqjlKXkeJWekodycnL
+#        initialClaimValue: ID from user (test/test)
+        initialClaimValue: e7db8474-8619-4d55-84ed-5546a677904b
+        initialClaimName: sub
+      zeebe:
+        clientId: zeebe-api
+        audience: zeebe-api
+        existingSecret: nPc6X8iM9q9rJikNW0LiKGbEWwTtVhdP
+      operate:
+        redirectUrl: "https://test.jensil.de/operate"
+        clientId: operate-api
+        audience: operate-api
+        existingSecret: Q5id3Sg5wYuN3h5sepHQUd3nuafzPHhf
+
+operate:
+  enabled: true
+  contextPath: "/operate"
+
+tasklist:
+  enabled: false
+
+optimize:
+  enabled: false
+
+connectors:
+  enabled: false
+
+webModeler:
+  enabled: false
+
+identityKeycloak:
+  enabled: false #ext_kc
+
+identityPostgresql:
+  enabled: true
+
+identity:
+  enabled: true
+  contextPath: "/identity"
+  fullURL: "https://test.jensil.de/identity"
+  keycloak:
+    enabled: false
+  env:
+    - name: JAVA_TOOL_OPTIONS
+      value: |
+        -Dlogging.level.org.apache.http.impl.execchain.MainClientExec=DEBUG -Dlogging.level.org.apache.http.headers=DEBUG -Dlogging.level.org.apache.http.wire=DEBUG -Dlogging.level.io.camunda=TRACE -Dlogging.level.io.camunda.identity.sdk.impl.rest=TRACE
+
+postgresql:
+  enabled: false
+
+prometheusServiceMonitor:
+  enabled: true
+
+zeebeGateway:
+  ingress:
+    grpc:
+      enabled: true
+      className: nginx
+      host: "test.jensil.de"
+      tls:
+        enabled: false
+        secretName: "tls-secret"
+  replicas: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1024Mi"
+      cpu: "500m"
+  logLevel: debug
+  env:
+    - name: ZEEBE_GATEWAY_MONITORING_ENABLED
+      value: "true"
+    - name: ZEEBE_GATEWAY_SECURITY_AUTHENTICATION_MODE
+      value: none
+
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  pvcSize: 10Gi
+  logLevel: debug
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "2Gi"
+  env:
+    - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
+      value: "true"
+
+elasticsearch:
+  master:
+    replicaCount: 1
+    persistence:
+      size: 15Gi
